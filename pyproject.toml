@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wlfwifi"
+version = "1.0.0"
+description = "Modern, modular, and automated wireless network auditor (WEP/WPA/WPS)"
+authors = [
+    { name = "Mike, derv82, ballastsec, contributors" }
+]
+license = { text = "GPLv2" }
+requires-python = ">=3.7"
+readme = "README.md"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/wlfwifi"
