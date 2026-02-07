@@ -67,18 +67,3 @@ class CapFile:
     def __init__(self, path: str, handshakes: int) -> None:
         self.path = path
         self.handshakes = handshakes
-
-
-# Example class docstring template:
-# class Target:
-#     """
-#     Represents a wireless network target.
-#
-#     Attributes:
-#         bssid (str): The BSSID of the target.
-#         essid (str): The ESSID (network name) of the target.
-#         channel (int): The channel the target is operating on.
-#         encryption (str): The encryption type (WEP, WPA, WPA2, etc.).
-#         wps (bool): Whether WPS is enabled.
-#         ...
-#     """

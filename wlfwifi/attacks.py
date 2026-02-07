@@ -23,11 +23,8 @@ from wlfwifi.models import Target
 def wps_check_targets(
     targets: List[Target], cap_file: str, verbose: bool = True
 ) -> None:
-    # ...existing code from wlfwifi.py...
-    # Note: RUN_CONFIG should be passed as an argument or imported if needed
     try:
         if not program_exists("tshark"):
-            # RUN_CONFIG.WPS_DISABLE = True  # TODO: pass config as argument
             return
         if len(targets) == 0 or not os.path.exists(cap_file):
             if verbose:
@@ -65,23 +62,6 @@ def wps_check_targets(
             t.wps = t.bssid.upper() in bssids
         if verbose:
             logging.info("done")
-        # TODO: Refactor to pass config as argument for WPS/WPA filtering
-        # removed = 0
-        # if (
-        #     hasattr(config, "WPS_DISABLE")
-        #     and hasattr(config, "WPA_DISABLE")
-        #     and not config.WPS_DISABLE
-        #     and config.WPA_DISABLE
-        # ):
-        #     i = 0
-        #     while i < len(targets):
-        #         if not targets[i].wps and targets[i].encryption.find("WPA") != -1:
-        #             removed += 1
-        #             targets.pop(i)
-        #         else:
-        #             i += 1
-        #     if removed > 0 and verbose:
-        #         logging.info(f" [+] removed {removed} non-WPS-enabled targets")
     except Exception as e:
         logging.error(f"[wps_check_targets] Error: {e}")
 
@@ -97,10 +77,3 @@ class Attack(metaclass=abc.ABCMeta):
         """End the attack. Must be implemented by subclasses."""
         raise NotImplementedError("EndAttack() must be implemented by subclasses.")
 
-
-# ...existing code for WPAAttack, WEPAttack, wpa_crack moved here from wlfwifi.py...
-# (For brevity, the full class code is not repeated in this patch,
-# but all methods and logic are moved as-is.)
-# Attack classes: WEPAttack, WPAAttack, WPSAttack
-
-# ...existing code will be moved here...

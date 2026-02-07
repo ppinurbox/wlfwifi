@@ -64,7 +64,7 @@ def remove_file(filename: str) -> None:
 
 def program_exists(program: str) -> bool:
     """
-    Uses 'which' (linux command) to check if a program is installed.
+    Checks if a program is installed and available in the system PATH.
     """
     try:
         proc = Popen(["which", program], stdout=PIPE, stderr=PIPE)
@@ -125,9 +125,7 @@ def get_mac_address(iface: str) -> str:
 
 def generate_random_mac(old_mac: str) -> str:
     """
-    Generates a random MAC address.
-    Keeps the same vender (first 6 chars) of the old MAC address (old_mac).
-    Returns string in format old_mac[0:9] + :XX:XX:XX where X is random hex
+    Generates a random MAC address preserving the vendor prefix (first 3 octets).
     """
     random.seed()
     new_mac = old_mac[:8].lower().replace("-", ":")
@@ -144,9 +142,8 @@ def mac_anonymize(
     iface: str, RUN_CONFIG: Any, GR: str, W: str, color_orange: str, stdout: Any, DN: Any
 ) -> None:
     """
-    Changes MAC address of 'iface' to a random MAC.
-    Only randomizes the last 6 digits of the MAC, so the vender says the same.
-    Stores old MAC address and the interface in ORIGINAL_IFACE_MAC
+    Randomizes the MAC address of an interface while preserving the vendor prefix.
+    Stores the original MAC in RUN_CONFIG.ORIGINAL_IFACE_MAC for later restoration.
     """
     if RUN_CONFIG.DO_NOT_CHANGE_MAC:
         return
@@ -198,7 +195,7 @@ def mac_change_back(RUN_CONFIG: Any, GR: str, W: str, stdout: Any, DN: Any) -> N
 
 def add_commas(n: int) -> str:
     """
-    Receives integer n, returns string representation of n with commas in thousands place.
+    Formats an integer with thousands separators (e.g., 1000000 -> "1,000,000").
     """
     strn = str(n)
     lenn = len(strn)
@@ -235,6 +232,4 @@ def remove_airodump_files(prefix: str, RUN_CONFIG: Any) -> None:
         if filename.startswith("replay_") and filename.endswith(".cap"):
             remove_file(filename)
         if filename.endswith(".xor"):
-            remove_file(
-                filename
-            )  # Utility functions: file ops, subprocess helpers, etc.
+            remove_file(filename)

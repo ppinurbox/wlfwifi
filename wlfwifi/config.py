@@ -60,13 +60,3 @@ def parse_args() -> RunConfig:
         logging.error(f"[parse_args] Error parsing arguments: {e}")
         parser.print_help()
         exit(1)
-
-
-# Example function docstring template:
-# def parse_args():
-#     """
-#     Parses command-line arguments and returns a configuration object.
-#
-#     Returns:
-#         RunConfig: The runtime configuration object.
-#     """

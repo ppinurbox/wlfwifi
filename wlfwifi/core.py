@@ -26,18 +26,6 @@ def main() -> None:
         logging.info(
             f"[wlfwifi] Starting with interface={config.interface}, channel={config.channel}, verbose={config.verbose}"
         )
-        # TODO: Initialize and run AttackEngine with config
     except Exception as e:
         logging.critical(f"[main] Fatal error: {e}")
         exit(1)
-
-
-# Example class docstring template:
-# class AttackEngine:
-#     """
-#     Coordinates scanning, selection, and attack execution.
-#
-#     Methods:
-#         run(): Starts the attack workflow.
-#         stop(): Stops all attacks and cleans up.
-#     """
