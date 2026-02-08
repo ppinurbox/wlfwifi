@@ -463,7 +463,7 @@ See [LICENSE](LICENSE) for the full license text.
 ## Authors & Acknowledgments
 
 ### Original Authors
-- **derv82** - Original wlfwifi creator
+- **ppinurbox** - wlfwifi creator
 - **ballastsec** - Ballast Security additions and maintenance
 
 ### Modernization Team
