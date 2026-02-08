@@ -133,7 +133,7 @@ def generate_random_mac(old_mac: str) -> str:
         if i % 2 == 0:
             new_mac += ":"
         new_mac += "0123456789abcdef"[random.randint(0, 15)]
-    if new_mac == old_mac:
+    if new_mac == old_mac.lower().replace("-", ":"):
         new_mac = generate_random_mac(old_mac)
     return new_mac
 
