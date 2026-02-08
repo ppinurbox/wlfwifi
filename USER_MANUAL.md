@@ -1,55 +1,57 @@
 # wlfwifi User Manual
 
-## Complete Reference Guide for Wireless Network Security Auditing
+**Complete Reference Guide for Wireless Network Security Auditing**
 
-**Version 1.0.0** | **Last Updated: January 2026**
+Version 1.0.0 | Last Updated: February 2026
+
+> **Legal Notice**: This tool is for **authorized security testing only**. Unauthorized network access is illegal and may result in criminal prosecution. Always obtain written permission before testing networks you do not own.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-1. [Introduction](#1-introduction)
+1. [Quick Start](#1-quick-start)
 2. [System Requirements](#2-system-requirements)
 3. [Installation](#3-installation)
-4. [Quick Start Guide](#4-quick-start-guide)
-5. [Command Line Reference](#5-command-line-reference)
-6. [Core Concepts](#6-core-concepts)
-7. [Network Discovery](#7-network-discovery)
-8. [Attack Types](#8-attack-types)
-9. [Usage Scenarios](#9-usage-scenarios)
-10. [Capture Files](#10-capture-files)
-11. [Python API Reference](#11-python-api-reference)
-12. [Troubleshooting](#12-troubleshooting)
-13. [Security Considerations](#13-security-considerations)
-14. [Appendices](#14-appendices)
+4. [Command Line Reference](#4-command-line-reference)
+5. [Core Concepts](#5-core-concepts)
+6. [Network Discovery](#6-network-discovery)
+7. [Attack Types](#7-attack-types)
+8. [Usage Scenarios](#8-usage-scenarios)
+9. [Capture Files](#9-capture-files)
+10. [Python API](#10-python-api)
+11. [Troubleshooting](#11-troubleshooting)
+12. [Quick Reference](#12-quick-reference)
 
 ---
 
-## 1. Introduction
+## 1. Quick Start
 
-### 1.1 What is wlfwifi?
+### 1.1 30-Second Setup
 
-**wlfwifi** is a modern, modular, and automated wireless network security auditing tool designed for security professionals, penetration testers, and network administrators. It provides automated testing capabilities for:
+```bash
+# 1. Install
+git clone https://github.com/yourusername/wlfwifi.git && cd wlfwifi
+pip install -e .
 
-- **WEP** (Wired Equivalent Privacy) networks
-- **WPA/WPA2** (Wi-Fi Protected Access) networks
-- **WPS** (Wi-Fi Protected Setup) enabled access points
+# 2. Kill interfering processes
+sudo airmon-ng check kill
 
-### 1.2 Key Features
+# 3. Run (replace wlan0 with your interface)
+sudo wlfwifi -i wlan0
+```
 
-| Feature | Description |
-|---------|-------------|
-| **Automated Scanning** | Discovers all nearby wireless networks automatically |
-| **Multi-Protocol Support** | Tests WEP, WPA/WPA2, and WPS vulnerabilities |
-| **Handshake Capture** | Automatically captures WPA 4-way handshakes |
-| **WPS PIN Attack** | Brute-force and Pixie Dust WPS attacks |
-| **MAC Anonymization** | Optional MAC address randomization |
-| **Modular Architecture** | Clean, extensible Python 3.7+ codebase |
-| **Comprehensive Logging** | Detailed verbose output for analysis |
+### 1.2 What wlfwifi Does
 
-### 1.3 Legal Disclaimer
+wlfwifi automates wireless security testing:
 
-> ⚠️ **WARNING**: This tool is intended for **authorized security testing and educational purposes only**. Unauthorized access to computer networks is illegal in most jurisdictions and can result in criminal prosecution, fines, and imprisonment. Always obtain explicit written authorization before testing any network you do not own.
+| Capability | Description |
+|------------|-------------|
+| Network Discovery | Scans and lists all nearby wireless networks |
+| WPA/WPA2 Testing | Captures 4-way handshakes for offline cracking |
+| WPS Testing | Pixie Dust and brute-force PIN attacks |
+| WEP Cracking | IV collection and key recovery |
+| MAC Anonymization | Optional MAC address randomization |
 
 ---
 
@@ -74,19 +76,18 @@
 
 ### 2.3 Compatible Wireless Adapters
 
-**Recommended Chipsets:**
-- Atheros AR9271 (ALFA AWUS036NHA)
-- Ralink RT3070 (ALFA AWUS036NH)
-- Realtek RTL8812AU (ALFA AWUS036ACH)
-- Intel Wireless (varies by model)
+**Recommended (with chipset):**
 
-**Checking Monitor Mode Support:**
+| Adapter | Chipset | Monitor Mode | Packet Injection |
+|---------|---------|--------------|------------------|
+| ALFA AWUS036NHA | Atheros AR9271 | Yes | Yes |
+| ALFA AWUS036NH | Ralink RT3070 | Yes | Yes |
+| ALFA AWUS036ACH | Realtek RTL8812AU | Yes | Yes |
+| TP-Link TL-WN722N v1 | Atheros AR9271 | Yes | Yes |
+
+**Verify your adapter supports monitor mode:**
 ```bash
-# Check supported modes
-iw list | grep -A 10 "Supported interface modes"
-
-# Look for "monitor" in output
-#   * monitor
+iw list | grep -A 10 "Supported interface modes" | grep monitor
 ```
 
 ### 2.4 Required External Tools
@@ -195,69 +196,15 @@ python3 --version
 
 ---
 
-## 4. Quick Start Guide
+## 4. Command Line Reference
 
-### 4.1 First Run
-
-```bash
-# 1. Identify your wireless interface
-iwconfig
-# Note: Look for wlan0, wlan1, wlp2s0, etc.
-
-# 2. Stop interfering processes
-sudo airmon-ng check kill
-
-# 3. Start wlfwifi
-sudo python3 wlfwifi.py -i wlan0
-
-# Or if installed via pip
-sudo wlfwifi -i wlan0
-```
-
-### 4.2 Basic Scanning
-
-```bash
-# Scan all channels
-sudo wlfwifi -i wlan0
-
-# Scan specific channel
-sudo wlfwifi -i wlan0 -c 6
-
-# Scan with verbose output
-sudo wlfwifi -i wlan0 -v
-```
-
-### 4.3 Example Session
-
-```bash
-$ sudo wlfwifi -i wlan0 -v
-
-[2026-01-30 10:00:00] INFO: [wlfwifi] Starting with interface=wlan0, channel=None, verbose=True
-[2026-01-30 10:00:01] INFO: Enabling monitor mode on wlan0...
-[2026-01-30 10:00:02] INFO: Monitor mode enabled (wlan0mon)
-[2026-01-30 10:00:02] INFO: Scanning for wireless networks...
-
-NUM  ESSID              BSSID              CH   ENC     PWR   WPS   CLIENTS
----  -----              -----              --   ---     ---   ---   -------
-1    HomeNetwork        00:11:22:33:44:55  6    WPA2    -45   Yes   3
-2    OfficeWiFi         11:22:33:44:55:66  11   WPA2    -60   No    1
-3    CafeGuest          22:33:44:55:66:77  1    WPA     -52   Yes   5
-4    LegacyRouter       33:44:55:66:77:88  6    WEP     -48   No    2
-
-Select target(s) [1-4, all]: 
-```
-
----
-
-## 5. Command Line Reference
-
-### 5.1 Syntax
+### 4.1 Syntax
 
 ```
 wlfwifi [-h] [-i INTERFACE] [-c CHANNEL] [-v]
 ```
 
-### 5.2 Options
+### 4.2 Options
 
 | Option | Long Form | Type | Default | Description |
 |--------|-----------|------|---------|-------------|
@@ -266,7 +213,7 @@ wlfwifi [-h] [-i INTERFACE] [-c CHANNEL] [-v]
 | `-c` | `--channel` | integer | None | Lock to specific channel |
 | `-v` | `--verbose` | flag | False | Enable verbose output |
 
-### 5.3 Option Details
+### 4.3 Option Details
 
 #### `-i, --interface`
 
@@ -347,7 +294,7 @@ sudo wlfwifi -i wlan0 -v
 - Attack stage updates
 - Debug information
 
-### 5.4 Combined Options
+### 4.4 Combined Options
 
 ```bash
 # All options combined
@@ -360,32 +307,22 @@ sudo python3 -m wlfwifi -i wlan0 -c 11 -v
 
 ---
 
-## 6. Core Concepts
+## 5. Core Concepts
 
-### 6.1 Monitor Mode
+### 5.1 Monitor Mode
 
-**What is Monitor Mode?**
-Monitor mode allows a wireless card to capture all wireless traffic in range, not just traffic destined for your device.
+Monitor mode allows your wireless card to capture all nearby traffic, not just packets destined for your device.
 
-**Enabling Monitor Mode:**
 ```bash
-# Using airmon-ng (recommended)
+# Enable (creates wlan0mon)
 sudo airmon-ng start wlan0
-# Interface becomes wlan0mon
 
-# Manual method
-sudo ip link set wlan0 down
-sudo iw wlan0 set monitor control
-sudo ip link set wlan0 up
-```
-
-**Disabling Monitor Mode:**
-```bash
+# Disable and restore networking
 sudo airmon-ng stop wlan0mon
 sudo systemctl start NetworkManager
 ```
 
-### 6.2 Encryption Types
+### 5.2 Encryption Types
 
 | Type | Security Level | Notes |
 |------|----------------|-------|
@@ -395,7 +332,7 @@ sudo systemctl start NetworkManager
 | **WPA2** | Strong | Current standard |
 | **WPA3** | Very Strong | Latest standard |
 
-### 6.3 WPS (Wi-Fi Protected Setup)
+### 5.3 WPS (Wi-Fi Protected Setup)
 
 WPS is a feature that simplifies connecting devices to a network using an 8-digit PIN. However, it has known vulnerabilities:
 
@@ -403,7 +340,7 @@ WPS is a feature that simplifies connecting devices to a network using an 8-digi
 - **Pixie Dust**: Some routers have weak random number generation
 - **Rate Limiting**: Some routers lock after failed attempts
 
-### 6.4 The 4-Way Handshake
+### 5.4 The 4-Way Handshake
 
 WPA/WPA2 uses a 4-way handshake to establish encryption:
 
@@ -421,7 +358,7 @@ Client                           Access Point
 
 Capturing this handshake allows offline password cracking.
 
-### 6.5 Signal Strength (dBm)
+### 5.5 Signal Strength (dBm)
 
 | Range | Quality | Usability |
 |-------|---------|-----------|
@@ -433,9 +370,9 @@ Capturing this handshake allows offline password cracking.
 
 ---
 
-## 7. Network Discovery
+## 6. Network Discovery
 
-### 7.1 Scanning for Networks
+### 6.1 Scanning
 
 **Basic Scan:**
 ```bash
@@ -447,7 +384,7 @@ sudo wlfwifi -i wlan0
 sudo wlfwifi -i wlan0 -c 6
 ```
 
-### 7.2 Understanding Scan Output
+### 6.2 Understanding Scan Output
 
 ```
 NUM  ESSID              BSSID              CH   ENC     PWR   WPS   CLIENTS
@@ -469,7 +406,7 @@ NUM  ESSID              BSSID              CH   ENC     PWR   WPS   CLIENTS
 | **WPS** | WPS enabled (Yes/No) |
 | **CLIENTS** | Number of connected clients |
 
-### 7.3 Hidden Networks
+### 6.3 Hidden Networks
 
 Networks with hidden SSIDs appear as `(hidden)` or blank ESSID. They can still be detected and attacked.
 
@@ -477,7 +414,7 @@ Networks with hidden SSIDs appear as `(hidden)` or blank ESSID. They can still b
 3    (hidden)           22:33:44:55:66:77  1    WPA2    -70   Yes   0
 ```
 
-### 7.4 Target Selection Criteria
+### 6.4 Target Selection Criteria
 
 **Best targets for testing:**
 - Strong signal (PWR > -60)
@@ -487,9 +424,9 @@ Networks with hidden SSIDs appear as `(hidden)` or blank ESSID. They can still b
 
 ---
 
-## 8. Attack Types
+## 7. Attack Types
 
-### 8.1 WPA/WPA2 Handshake Capture
+### 7.1 WPA/WPA2 Handshake Capture
 
 **Purpose:** Capture the 4-way handshake for offline password cracking.
 
@@ -527,7 +464,7 @@ hcxpcapngtool -o hash.hc22000 hs/HomeNetwork_*.cap
 hashcat -m 22000 hash.hc22000 rockyou.txt
 ```
 
-### 8.2 WPS PIN Attack
+### 7.2 WPS PIN Attack
 
 **Purpose:** Exploit WPS vulnerabilities to recover WPA password.
 
@@ -559,7 +496,7 @@ Select target(s): 1
 [+] WPA PSK: MySecretPassword123!
 ```
 
-### 8.3 WEP Cracking
+### 7.3 WEP Cracking
 
 **Purpose:** Crack deprecated WEP encryption.
 
@@ -588,7 +525,7 @@ Select target(s): 4
 [+] KEY FOUND: 1A:2B:3C:4D:5E
 ```
 
-### 8.4 Attack Decision Tree
+### 7.4 Attack Decision Tree
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -626,7 +563,7 @@ Select target(s): 4
 
 ---
 
-## 9. Usage Scenarios
+## 8. Usage Scenarios
 
 ### Scenario 1: Home Network Security Audit
 
@@ -886,9 +823,9 @@ sudo wlfwifi -i wlan0 -c <channel>
 
 ---
 
-## 10. Capture Files
+## 9. Capture Files
 
-### 10.1 File Locations
+### 9.1 File Locations
 
 ```
 ./                          # Current directory
@@ -896,7 +833,7 @@ sudo wlfwifi -i wlan0 -c <channel>
 ./hs/NetworkName_BSSID.cap  # Individual capture files
 ```
 
-### 10.2 File Types
+### 9.2 File Types
 
 | Extension | Description | Use |
 |-----------|-------------|-----|
@@ -905,7 +842,7 @@ sudo wlfwifi -i wlan0 -c <channel>
 | `.hc22000` | Hashcat format | GPU cracking |
 | `.pcap` | Packet capture | Analysis with Wireshark |
 
-### 10.3 Working with Captures
+### 9.3 Working with Captures
 
 **Listing captures:**
 ```bash
@@ -934,7 +871,7 @@ wireshark hs/capture.cap
 # Filter: eapol
 ```
 
-### 10.4 Cracking Tools Comparison
+### 9.4 Cracking Tools Comparison
 
 | Tool | Speed | Requirements | Best For |
 |------|-------|--------------|----------|
@@ -943,7 +880,7 @@ wireshark hs/capture.cap
 | pyrit | Fast | GPU | Batch processing |
 | john | Medium | CPU | Rule-based attacks |
 
-### 10.5 Example Cracking Commands
+### 9.5 Example Cracking Commands
 
 **Aircrack-ng (CPU):**
 ```bash
@@ -972,9 +909,9 @@ pyrit -r capture.cap -i wordlist.txt attack_passthrough
 
 ---
 
-## 11. Python API Reference
+## 10. Python API
 
-### 11.1 Package Overview
+### 10.1 Package Overview
 
 ```python
 import wlfwifi
@@ -984,7 +921,7 @@ print(wlfwifi.__version__)  # "1.0.0"
 print(wlfwifi.__author__)   # "derv82, ballastsec, Mike, and contributors"
 ```
 
-### 11.2 Core Classes
+### 10.2 Core Classes
 
 #### RunConfig
 
@@ -1066,13 +1003,12 @@ print(cap.path)        # "/path/to/capture.cap"
 print(cap.handshakes)  # 4
 ```
 
-### 11.3 Attack Classes
+### 10.3 Attack Classes
 
 #### Attack (Abstract Base)
 
 ```python
-from wlfwifi import Attack
-import abc
+from wlfwifi import Attack, Target
 
 class CustomAttack(Attack):
     def __init__(self, target):
@@ -1096,7 +1032,7 @@ print(attack.RunAttack())  # "Attacking TestNet"
 print(attack.EndAttack())  # "Attack stopped"
 ```
 
-### 11.4 Utility Functions
+### 10.4 Utility Functions
 
 ```python
 from wlfwifi.utils import (
@@ -1129,7 +1065,7 @@ remove_file("/tmp/test.cap")           # Remove if exists
 rename("/tmp/old.cap", "/tmp/new.cap") # Rename/move file
 ```
 
-### 11.5 WPS Checking
+### 10.5 WPS Checking
 
 ```python
 from wlfwifi import Target, wps_check_targets
@@ -1148,7 +1084,7 @@ for t in targets:
     print(f"{t.essid}: WPS={t.wps}")
 ```
 
-### 11.6 Main Entry Point
+### 10.6 Main Entry Point
 
 ```python
 from wlfwifi import main
@@ -1159,9 +1095,19 @@ main()
 
 ---
 
-## 12. Troubleshooting
+## 11. Troubleshooting
 
-### 12.1 Common Errors
+**Quick Diagnosis:**
+```
+Problem?
+├── "Interface not found" → Run: ip link show (check interface name)
+├── "Permission denied" → Run with: sudo
+├── "No networks found" → Run: sudo airmon-ng check kill
+├── "Handshake not captured" → Need clients connected, try: sudo aireplay-ng -0 5 -a BSSID wlan0mon
+└── "WPS locked" → Wait 5-60 minutes for lockout to expire
+```
+
+### 11.1 Common Errors
 
 #### "Interface not found"
 
@@ -1267,7 +1213,7 @@ wash -i wlan0mon
 # Try Pixie Dust attack (faster)
 ```
 
-### 12.2 Diagnostic Commands
+### 11.2 Diagnostic Commands
 
 ```bash
 # Check wireless interface status
@@ -1295,7 +1241,7 @@ lspci | grep -i wireless
 sudo aireplay-ng --test wlan0mon
 ```
 
-### 12.3 Reset Procedures
+### 11.3 Reset Procedures
 
 **Reset wireless interface:**
 ```bash
@@ -1326,174 +1272,70 @@ sudo systemctl start wpa_supplicant
 
 ---
 
-## 13. Security Considerations
+## 12. Quick Reference
 
-### 13.1 Legal Requirements
-
-⚠️ **CRITICAL**: Unauthorized network access is illegal.
-
-**Legal use requires:**
-- Network ownership, OR
-- Written authorization from owner
-
-**Authorization should include:**
-- Specific networks in scope
-- Permitted testing methods
-- Testing timeframe
-- Emergency contacts
-- Signatures
-
-### 13.2 Ethical Guidelines
-
-1. **Only test authorized networks**
-2. **Minimize impact** on network availability
-3. **Protect captured data** securely
-4. **Report vulnerabilities** responsibly
-5. **Document everything** for accountability
-
-### 13.3 Data Protection
-
-**Secure your captures:**
-```bash
-# Encrypt capture files
-gpg -c hs/sensitive_capture.cap
-
-# Secure permissions
-chmod 600 hs/*.cap
-
-# Delete when done
-shred -u hs/*.cap
-```
-
-### 13.4 Operational Security
+### Command Cheat Sheet
 
 ```bash
-# Randomize MAC address
-sudo macchanger -r wlan0
-
-# Use wlfwifi MAC anonymization
-# (built-in feature when available)
-
-# Clear history
-history -c
-```
-
----
-
-## 14. Appendices
-
-### Appendix A: Channel Reference
-
-**2.4 GHz Channels:**
-
-| Channel | Frequency (MHz) | Notes |
-|---------|-----------------|-------|
-| 1 | 2412 | Non-overlapping |
-| 2 | 2417 | |
-| 3 | 2422 | |
-| 4 | 2427 | |
-| 5 | 2432 | |
-| 6 | 2437 | Non-overlapping |
-| 7 | 2442 | |
-| 8 | 2447 | |
-| 9 | 2452 | |
-| 10 | 2457 | |
-| 11 | 2462 | Non-overlapping |
-| 12 | 2467 | Not allowed in US |
-| 13 | 2472 | Not allowed in US |
-| 14 | 2484 | Japan only |
-
-**5 GHz Channels:**
-
-| Channel | Frequency (MHz) | Band |
-|---------|-----------------|------|
-| 36 | 5180 | UNII-1 |
-| 40 | 5200 | UNII-1 |
-| 44 | 5220 | UNII-1 |
-| 48 | 5240 | UNII-1 |
-| 52 | 5260 | UNII-2 (DFS) |
-| 56 | 5280 | UNII-2 (DFS) |
-| 60 | 5300 | UNII-2 (DFS) |
-| 64 | 5320 | UNII-2 (DFS) |
-| 100 | 5500 | UNII-2e (DFS) |
-| 149 | 5745 | UNII-3 |
-| 153 | 5765 | UNII-3 |
-| 157 | 5785 | UNII-3 |
-| 161 | 5805 | UNII-3 |
-| 165 | 5825 | UNII-3 |
-
-### Appendix B: Encryption Comparison
-
-| Type | Key Length | Security | Cracking Method |
-|------|------------|----------|-----------------|
-| OPN | None | None | None needed |
-| WEP | 40/104 bit | Very Weak | IV attack (minutes) |
-| WPA | Variable | Weak | Dictionary (hours-days) |
-| WPA2-PSK | Variable | Strong | Dictionary (hours-days) |
-| WPA2-Enterprise | Variable | Very Strong | Difficult |
-| WPA3 | Variable | Very Strong | Currently resistant |
-
-### Appendix C: Common Wordlists
-
-| Wordlist | Size | Location |
-|----------|------|----------|
-| rockyou.txt | 14 million | `/usr/share/wordlists/rockyou.txt` |
-| fasttrack.txt | 222 | `/usr/share/wordlists/fasttrack.txt` |
-| common.txt | 4,614 | `/usr/share/wordlists/common.txt` |
-| darkweb2017.txt | 10 million | Download required |
-
-### Appendix D: Useful Commands Reference
-
-```bash
-# Interface management
-iwconfig                          # List wireless interfaces
-iw dev                            # Detailed interface info
-sudo airmon-ng start wlan0        # Enable monitor mode
-sudo airmon-ng stop wlan0mon      # Disable monitor mode
+# Setup
+sudo airmon-ng check kill          # Kill interfering processes
+sudo airmon-ng start wlan0         # Enable monitor mode
 
 # Scanning
-sudo airodump-ng wlan0mon                    # Scan all
-sudo airodump-ng -c 6 wlan0mon               # Scan channel 6
-sudo airodump-ng --bssid XX:XX wlan0mon      # Scan specific AP
+sudo wlfwifi -i wlan0              # Scan all channels
+sudo wlfwifi -i wlan0 -c 6         # Scan channel 6 only
+sudo wlfwifi -i wlan0 -v           # Verbose output
 
-# Attacks
-sudo aireplay-ng -0 5 -a BSSID wlan0mon      # Deauth
-sudo reaver -i wlan0mon -b BSSID -vv         # WPS attack
+# Post-attack cleanup
+sudo airmon-ng stop wlan0mon
+sudo systemctl start NetworkManager
 
-# Cracking
-aircrack-ng -w wordlist.txt capture.cap      # WPA crack
-aircrack-ng capture.cap                      # WEP crack
-
-# Utilities
-sudo macchanger -r wlan0                     # Random MAC
-wash -i wlan0mon                             # Find WPS APs
+# Crack captured handshakes
+aircrack-ng -w rockyou.txt hs/*.cap
 ```
 
-### Appendix E: Exit Codes
+### Encryption Quick Guide
+
+| Type | Crackable? | Method | Time |
+|------|-----------|--------|------|
+| OPN | N/A | Open | Instant |
+| WEP | Yes | IV Collection | Minutes |
+| WPA/WPA2 | Maybe | Dictionary | Hours-Days |
+| WPA3 | No | - | - |
+
+### Signal Strength Guide
+
+| dBm | Quality | Recommendation |
+|-----|---------|----------------|
+| > -50 | Excellent | Proceed |
+| -50 to -65 | Good | Proceed |
+| -65 to -75 | Fair | Move closer if possible |
+| < -75 | Poor | Relocate |
+
+### Common Wordlists
+
+```
+/usr/share/wordlists/rockyou.txt      # 14M passwords
+/usr/share/wordlists/fasttrack.txt    # 222 common
+```
+
+### Exit Codes
 
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1 | Fatal error |
-| 2 | Invalid arguments |
-| 130 | Interrupted (Ctrl+C) |
+| 1 | Error |
+| 130 | Ctrl+C |
 
 ---
 
-## Version History
+## Security and Ethics Reminder
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01 | Initial release |
-
----
-
-## Getting Help
-
-- **Documentation**: See README.md, USAGE.md, ARCHITECTURE.md
-- **Issues**: https://github.com/yourusername/wlfwifi/issues
-- **Verbose Mode**: Run with `-v` for detailed output
+- **Only test networks you own or have written authorization to test**
+- Secure capture files: `chmod 600 hs/*.cap`
+- Delete when done: `shred -u hs/*.cap`
+- Document your testing scope and findings
 
 ---
 
-**© 2026 wlfwifi Contributors | Licensed under GPL-2.0**
+**wlfwifi** v1.0.0 | GPL-2.0 | [Documentation](README.md) | [Issues](https://github.com/yourusername/wlfwifi/issues)
